@@ -1,10 +1,10 @@
 const express = require('express');
-const { connectDb } = require('./configs/database');    // <-- This line will import the function of database connectivity
+const { connectDb } = require('./src/configs/database');    // <-- This line will import the function of database connectivity
 const cookieParser = require('cookie-parser')
-const authRouter = require('./routes/auth');
-const requestRouter = require('./routes/requests');
-const profileRouter = require('./routes/profile');
-const userRouter = require('./routes/user');
+const authRouter = require('./src/routes/auth');
+const requestRouter = require('./src/routes/requests');
+const profileRouter = require('./src/routes/profile');
+const userRouter = require('./src/routes/user');
 const cors = require('cors');
 
 const app = express();
