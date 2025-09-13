@@ -144,7 +144,7 @@ authRouter.post('/login', async (req, res) => {
             console.log(token);
 
             // Add token to cookie
-            res.cookie("token", token, { httpOnly: true /* This will run only on http not on https */, expires: new Date(Date.now() + 24 * 60 * 60 * 1000) });   ///Can also expire the cookies, 1 day from now. res.cookies will not accept the values like expires : '1d'.
+            res.cookie("token", token, { httpOnly: true, sameSite : 'none', secure: true /* This will run only on http not on https */, expires: new Date(Date.now() + 24 * 60 * 60 * 1000) });   ///Can also expire the cookies, 1 day from now. res.cookies will not accept the values like expires : '1d'.
             // to make cookies valid on https we use secure : true
             res.status(200).json({data : user, token: token})
         } else {
