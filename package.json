@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/app.js",
-    "start": "node src/app.js"
+    "start": "node index.js"
   },
   "author": "Sarang Padulkar",
   "license": "ISC",
