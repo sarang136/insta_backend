@@ -1,0 +1,36 @@
+const express = require('express');
+const { connectDb } = require('./configs/database');    // <-- This line will import the function of database connectivity
+const cookieParser = require('cookie-parser')
+const authRouter = require('./routes/auth');
+const requestRouter = require('./routes/requests');
+const profileRouter = require('./routes/profile');
+const userRouter = require('./routes/user');
+const cors = require('cors');
+
+const app = express();
+app.use(cors({
+    origin:["http://localhost:5173","http://localhost:5174"],
+    credentials: true, methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}))
+app.use(express.json());
+app.use(cookieParser())
+
+
+app.use('/', authRouter);
+app.use('/', requestRouter);
+app.use('/', profileRouter)
+app.use('/', userRouter)
+
+
+connectDb()   // Call the function to connect to the database, Created a function to connect to a database
+    .then(() => {
+        console.log('MongoDB Connected...😍');
+        app.listen(3000, () => {
+            console.log("Listening on 3000");
+        })
+    })
+    .catch(() => {
+        console.log("DB Not Connected...🍌")
+    })
+

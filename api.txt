@@ -1,0 +1,26 @@
+API's
+
+Auth Router
+- signup
+- login
+- logout
+
+ProfileRouter
+- get-my-profile
+- update-my-profile
+- update-my-password
+
+connectionRequestRouter
+- request/interested/:id
+- request/ignored/:id
+- request/accepted/:reqId
+- request/rejected/:reqId
+
+userRouter
+- get-connections
+- received/requests
+- feed
+
+ 
+status - ignore, interested, accepted, rejected, blocked
+
