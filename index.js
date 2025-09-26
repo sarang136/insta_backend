@@ -1,3 +1,6 @@
+
+const dotenv = require('dotenv');
+dotenv.config();
 const express = require('express');
 const { connectDb } = require('./src/configs/database');    // <-- This line will import the function of database connectivity
 const cookieParser = require('cookie-parser')

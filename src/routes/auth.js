@@ -3,7 +3,8 @@ const authRouter = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const bcrypt = require('bcrypt')
-const dotenv = require('dotenv')
+const dotenv = require('dotenv');
+const upload = require('../utils/cloudinary');
 dotenv.config();
 
 // // import multer from "multer";
@@ -14,111 +15,51 @@ dotenv.config();
 // const streamifier = require('streamifier');
 
 
+authRouter.post('/signup', upload.single('profileImage'), async (req, res) => {
+  try {
+    const { 
+      firstName, lastName, emailId, age, password, skills, about, 
+      gender, liveIn, hometown, education, languagesKnown, workingIn 
+    } = req.body;
 
-
-authRouter.post('/signup', async (req, res) => {
-    // Validate the data 
-    const { firstName, lastName, emailId, profileUrl, age, password, skills, about, gender, liveIn, hometown, education, languagesKnown, workingIn } = req.body;
-    try {
-        if (!firstName || !lastName || !emailId || !password || !gender || !hometown || !liveIn || !age ||  !education || !languagesKnown || !workingIn) {
-            return res.status(400).json({ message: "Please fill in all fields" });
-        }
-        // Encrypt the password, there is a package to encrypt the password using bcrypt
-        const hashedPassword = await bcrypt.hash(password, 10);
-        // bcrypt.hash is a function which takes password from body and a salt which is the complexity for the password, idealy 10.
-        console.log(hashedPassword);
-
-        console.log(req.body) 
-        const user = User({
-            firstName, //
-            lastName,//
-            emailId, //
-            password: hashedPassword, //
-            gender,//
-            liveIn,
-            hometown,
-            profileUrl,
-            age, //
-            skills, //
-            about,
-            languagesKnown,
-            workingIn,
-            education,
-
-
-        })  // -- saving the new user, creating a new instance of the User, and passing the body, whatever the user puts the inputs. 
-        await user.save();   //-- saving that new user
-        res.status(200).send("User Saved Successfully")    // -- sending the response.
-    } catch (err) {
-        res.status(500).send(err.message)
+    // Validate required fields
+    if (!firstName || !lastName || !emailId || !password || !gender || !hometown || !liveIn || !age || !education || !languagesKnown || !workingIn) {
+      return res.status(400).json({ message: "Please fill in all fields" });
     }
-})
 
+    // Encrypt password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-// Cloudinary config
-// cloudinary.config({
-//   cloud_name: process.env.CLOUD_NAME,
-//   api_key: process.env.API_KEY,
-//   api_secret: process.env.API_SECRET,
-// });
+    let profileUrl = null;
+    if (req.file) {
+      profileUrl = req.file.path;       
+      console.log("Cloudinary upload:", req.file);
+    }
 
-// // Multer setup (memory storage, not saving to disk)
-// const storage = multer.memoryStorage();
-// const upload = multer({ storage });
+    // Create and save new user
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: hashedPassword,
+      gender,
+      liveIn,
+      hometown,
+      profileImage: profileUrl,
+      age,
+      skills,
+      about,
+      languagesKnown,
+      workingIn,
+      education,
+    });
 
-// // Signup API with file upload
-// authRouter.post("/signup", upload.single("profilePic"), async (req, res) => {
-//   try {
-//     const { firstName, lastName, emailId, age, password, gender, liveIn, hometown, education, languagesKnown, workingIn, about, skills } = req.body;
-
-//     if (!firstName || !lastName || !emailId || !password || !gender || !hometown || !liveIn || !age || !education || !languagesKnown || !workingIn) {
-//       return res.status(400).json({ message: "Please fill in all fields" });
-//     }
-
-//     // Upload image to Cloudinary
-//     let profileUrl = null;
-//     if (req.file) {
-//       const result = await new Promise((resolve, reject) => {
-//         let cld_upload_stream = cloudinary.uploader.upload_stream(
-//           { folder: "profile_pics" },
-//           (error, result) => {
-//             if (result) resolve(result);
-//             else reject(error);
-//           }
-//         );
-//         streamifier.createReadStream(req.file.buffer).pipe(cld_upload_stream);
-//       });
-
-//       profileUrl = result.secure_url; // Cloudinary hosted URL
-//     }
-
-//     // Encrypt password
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     // Save user
-//     const user = new User({
-//       firstName,
-//       lastName,
-//       emailId,
-//       password: hashedPassword,
-//       gender,
-//       liveIn,
-//       hometown,
-//       profileUrl, // <-- saved from Cloudinary
-//       age,
-//       skills,
-//       about,
-//       languagesKnown,
-//       workingIn,
-//       education,
-//     });
-
-//     await user.save();
-//     res.status(200).json({ message: "User Saved Successfully", user });
-//   } catch (err) {
-//     res.status(500).send(err.message);
-//   }
-// });
+    await user.save();
+    res.status(200).json({ message: "User saved successfully", user });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 
 authRouter.post('/login', async (req, res) => {
