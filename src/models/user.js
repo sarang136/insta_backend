@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-// Create a Schema of a User
+
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
@@ -14,10 +14,10 @@ const userSchema = new mongoose.Schema({
     emailId: {
         type: String,
         unique: true,
-        required: true,    // <--- This automatically creates index
+        required: true,    
         trim: true,
         lowercase: true,
-        validate(value) {    //- Library to validate things like email and more
+        validate(value) {    
             if (!validator.isEmail(value)) {
                 throw new Error('Invalid Email');
             }

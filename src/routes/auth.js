@@ -30,9 +30,9 @@ authRouter.post('/signup', upload.single('profileImage'), async (req, res) => {
     // Encrypt password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    let profileUrl = null;
+    let profileImage = null;
     if (req.file) {
-      profileUrl = req.file.path;       
+      profileImage = req.file.path;       
       console.log("Cloudinary upload:", req.file);
     }
 
@@ -45,7 +45,7 @@ authRouter.post('/signup', upload.single('profileImage'), async (req, res) => {
       gender,
       liveIn,
       hometown,
-      profileImage: profileUrl,
+      profileImage: profileImage,
       age,
       skills,
       about,
@@ -85,7 +85,7 @@ authRouter.post('/login', async (req, res) => {
             console.log(token);
 
             // Add token to cookie
-            res.cookie("token", token, { httpOnly: true, sameSite : 'none', secure: true /* This will run only on http not on https */, expires: new Date(Date.now() + 24 * 60 * 60 * 1000) });   ///Can also expire the cookies, 1 day from now. res.cookies will not accept the values like expires : '1d'.
+            res.cookie("token", token, { httpOnly: true, sameSite : 'None', secure: true /* This will run only on http not on https */, expires: new Date(Date.now() + 24 * 60 * 60 * 1000) });   ///Can also expire the cookies, 1 day from now. res.cookies will not accept the values like expires : '1d'.
             // to make cookies valid on https we use secure : true
             res.status(200).json({data : user, token: token})
         } else {

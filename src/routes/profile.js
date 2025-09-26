@@ -24,7 +24,7 @@ profileRouter.patch('/updatemy-profile/:id', userAuth, async (req, res) => {
         const data = req.body;
 
         const onlyAllowed = [
-            "profileUrl",
+            "profileImage",
             "age",
             "skills",
             "about",

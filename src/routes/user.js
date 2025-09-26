@@ -7,7 +7,8 @@ const notification = require('../models/notificatons');
 const user = require('../models/user');
 const posts = require('../models/posts');
 const { default: mongoose } = require('mongoose');
-
+const upload = require('../utils/cloudinary');
+const fs = require('fs'); // For removing temp files if needed
 const userRouter = express.Router();
 
 const SAFE_DATA = ["firstName", "lastName", "createdAt", "emailId", "skills", "about", "profileUrl", "gender", "liveIn", "education", "hometown", "languagesKnown", "workingIn", "posts"];
@@ -116,41 +117,43 @@ userRouter.get('/feed', userAuth, async (req, res) => {
 
 
 })
-userRouter.post('/post-image/:id', userAuth, async (req, res) => {
-    const { _id } = req.user;
+
+
+
+userRouter.post('/post-image/:id', upload.single('url'), async (req, res) => {
+    // const { _id } = req.user;
     const id = req.params.id;
-    const { url, caption } = req.body;
-    console.log("url", url);
+    const { caption } = req.body;
 
-
-
-    if (id !== _id.toString()) {
-        return res.status(403).json({ message: "Unauthorized user" });
-    }
+    // if (id !== _id.toString()) {
+    //     return res.status(403).json({ message: "Unauthorized user" });
+    // }
 
     try {
-        if (!url) {
-            return res.status(400).json({ message: "Post image URL is required" });
-        }
-
         const user = await User.findById(id);
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        if (!req.file || !req.file.path) {
+            return res.status(400).json({ message: "Image is required" });
         }
 
         const newPost = {
-            url,
-            caption
+            url: req.file.path,   // multer-storage-cloudinary sets 'path' as the secure URL
+            caption: caption || ""
         };
 
+        if (!user.posts) user.posts = [];
         user.posts.push(newPost);
         await user.save();
 
         res.status(200).json({ message: "Post saved successfully", user });
     } catch (error) {
+        console.error("Post upload error:", error);
         res.status(500).json({ error: error.message });
     }
 });
+
+
 userRouter.post('/post/comment/:postId/:userId', userAuth, async (req, res) => {
     const loggedInUser = req.user
     try {
